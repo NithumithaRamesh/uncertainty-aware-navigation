@@ -48,6 +48,9 @@ def compare_routes(
         raise TypeError("current_time must be a datetime value")
     if any(not isinstance(route, Route) for route in routes):
         raise TypeError("routes must contain only Route instances")
+    route_ids = [route.route_id for route in routes]
+    if len(route_ids) != len(set(route_ids)):
+        raise ValueError("routes must have unique route_id values")
 
     fastest_route = min(routes, key=lambda route: route.estimated_time)
     route_details: list[RouteComparison] = []

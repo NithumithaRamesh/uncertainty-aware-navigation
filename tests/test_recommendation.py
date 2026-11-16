@@ -82,6 +82,17 @@ def test_empty_routes_are_rejected() -> None:
         compare_routes([], CURRENT_TIME)
 
 
+def test_duplicate_route_ids_are_rejected() -> None:
+    with pytest.raises(ValueError, match="unique route_id"):
+        compare_routes(
+            [
+                make_route("A", 35, 2, 5),
+                make_route("A", 27, 10, 45),
+            ],
+            CURRENT_TIME,
+        )
+
+
 @pytest.mark.parametrize(
     ("age_minutes", "expected_freshness"),
     [(None, "Unavailable"), (5, "Recent"), (45, "Outdated")],
