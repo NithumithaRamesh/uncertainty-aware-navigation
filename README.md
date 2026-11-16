@@ -23,6 +23,11 @@ time, independent uncertainty value, and optional traffic-update timestamp.
 The uncertainty helper reports the simulated lower and upper journey-time
 bounds; these bounds are not statistically calibrated confidence intervals.
 
+Dynamic OSRM routes do not include traffic-data timestamps. The prototype
+therefore assigns deterministic illustrative ages to routes after retrieval
+(for example, Route A is recent and Route B is outdated). These timestamps
+support the freshness interaction and are not real traffic-data predictions.
+
 ## Recommendation logic
 
 The comparison logic selects the route with the lowest estimated journey time
