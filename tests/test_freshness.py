@@ -33,10 +33,15 @@ def test_handles_timezone_aware_timestamps() -> None:
     assert assess_freshness(last_updated, current_time) == (5.0, "Recent")
 
 
+def test_classifies_missing_last_updated_as_unavailable() -> None:
+    current_time = datetime(2026, 11, 15, 11, 0)
+
+    assert assess_freshness(None, current_time) == (None, "Unavailable")
+
+
 @pytest.mark.parametrize(
     ("last_updated", "current_time", "error"),
     [
-        (None, datetime(2026, 11, 15, 11, 0), TypeError),
         (datetime(2026, 11, 15, 11, 0), None, TypeError),
         (
             datetime(2026, 11, 15, 10, 55),

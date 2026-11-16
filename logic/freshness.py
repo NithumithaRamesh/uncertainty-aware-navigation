@@ -6,25 +6,33 @@ from datetime import datetime, timezone
 def assess_freshness(
     last_updated: datetime | None,
     current_time: datetime | None,
-) -> tuple[float, str]:
+) -> tuple[float | None, str]:
     """Return the traffic-data age in minutes and its freshness classification.
 
+    If ``last_updated`` is unavailable, the age is ``None`` and the
+    classification is ``"Unavailable"`` so one incomplete route does not
+    prevent the application from displaying other routes.
     Naive timestamps are compared as naive values. Timezone-aware timestamps
     are converted to UTC before comparison. Mixing naive and timezone-aware
     timestamps is rejected because their relationship is ambiguous.
 
     Raises:
-        TypeError: If either value is not a ``datetime`` or is missing.
+        TypeError: If ``current_time`` is missing or either supplied value is
+            not a ``datetime``.
         ValueError: If timestamp awareness differs or current time precedes
             the update time.
     """
-    if last_updated is None or current_time is None:
-        raise TypeError("last_updated and current_time are required")
+    if current_time is None:
+        raise TypeError("current_time is required")
 
-    if not isinstance(last_updated, datetime) or not isinstance(
-        current_time, datetime
-    ):
-        raise TypeError("last_updated and current_time must be datetime values")
+    if not isinstance(current_time, datetime):
+        raise TypeError("current_time must be a datetime value")
+
+    if last_updated is None:
+        return None, "Unavailable"
+
+    if not isinstance(last_updated, datetime):
+        raise TypeError("last_updated must be a datetime value")
 
     last_updated_is_aware = last_updated.tzinfo is not None
     current_time_is_aware = current_time.tzinfo is not None

@@ -11,6 +11,7 @@ data freshness assessment:
 - `0–10` minutes: Recent
 - Above `10–30` minutes: Moderately old
 - Above `30` minutes: Outdated
+- Missing traffic timestamp: Unavailable
 
 The thresholds are provisional design assumptions. The freshness logic keeps
 data age separate from travel-time uncertainty.
