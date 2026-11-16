@@ -23,6 +23,12 @@ time, independent uncertainty value, and optional traffic-update timestamp.
 The uncertainty helper reports the simulated lower and upper journey-time
 bounds; these bounds are not statistically calibrated confidence intervals.
 
+## Recommendation logic
+
+The comparison logic selects the route with the lowest estimated journey time
+only. It reports uncertainty ranges and traffic-data freshness separately
+instead of combining them into an unsupported reliability score.
+
 ## Setup
 
 ```powershell
