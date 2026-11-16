@@ -16,6 +16,13 @@ data freshness assessment:
 The thresholds are provisional design assumptions. The freshness logic keeps
 data age separate from travel-time uncertainty.
 
+## Route model
+
+Routes are represented with their identifier, display name, estimated journey
+time, independent uncertainty value, and optional traffic-update timestamp.
+The uncertainty helper reports the simulated lower and upper journey-time
+bounds; these bounds are not statistically calibrated confidence intervals.
+
 ## Setup
 
 ```powershell
