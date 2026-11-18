@@ -15,6 +15,15 @@ from collections.abc import Iterable
 from logic.route import Route
 
 
+ILLUSTRATIVE_UNCERTAINTY_BY_ROUTE_ID = {
+    "A": 8.0,
+    "B": 2.0,
+    "C": 3.0,
+    "D": 5.0,
+    "E": 4.0,
+}
+
+
 @dataclass(frozen=True)
 class UncertaintySimulationConfig:
     """Bounds for illustrative uncertainty values, in minutes."""
@@ -79,6 +88,11 @@ def _illustrative_uncertainty(
     route: Route,
     config: UncertaintySimulationConfig,
 ) -> float:
+    configured_value = ILLUSTRATIVE_UNCERTAINTY_BY_ROUTE_ID.get(route.route_id)
+    if configured_value is not None:
+        if config.minimum_minutes <= configured_value <= config.maximum_minutes:
+            return configured_value
+
     digest = hashlib.sha256(
         f"{route.route_id}\0{route.name}".encode("utf-8")
     ).digest()

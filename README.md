@@ -34,6 +34,24 @@ The comparison logic selects the route with the lowest estimated journey time
 only. It reports uncertainty ranges and traffic-data freshness separately
 instead of combining them into an unsupported reliability score.
 
+## User flow
+
+The interface is designed for a short navigation decision rather than a
+questionnaire:
+
+1. Enter an origin and destination.
+2. Choose what matters most: fastest, predictable, most recent traffic, or
+   balanced.
+3. Scan the suggested route's journey estimate, possible arrival range, and
+   traffic-data age.
+4. Select **Use this route**. Additional explanation is available below the
+   route cards.
+
+The application does not claim that simulated uncertainty predicts actual
+traffic or that it improves driver trust. It is a decision-support prototype
+whose uncertainty and freshness values remain illustrative until validated with
+real data.
+
 ## Setup
 
 ```powershell

@@ -62,6 +62,13 @@ def test_simulation_does_not_depend_on_journey_duration() -> None:
     ]
 
 
+def test_default_values_create_a_route_tradeoff() -> None:
+    simulated = simulate_route_uncertainty(routes())
+
+    assert simulated[0].uncertainty == 8
+    assert simulated[1].uncertainty == 2
+
+
 def test_empty_routes_are_supported() -> None:
     assert simulate_route_uncertainty([]) == []
 

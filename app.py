@@ -7,6 +7,7 @@ from logic.preference import (
     BALANCED,
     FASTEST,
     PREDICTABLE,
+    RECENT_INFORMATION,
     recommend_by_preference,
 )
 from logic.recommendation import compare_routes
@@ -31,6 +32,10 @@ PREFERENCE_OPTIONS = {
     "Most predictable": (
         PREDICTABLE,
         "Prioritises the lowest simulated uncertainty.",
+    ),
+    "Most recent traffic": (
+        RECENT_INFORMATION,
+        "Prioritises the route with the newest available traffic information.",
     ),
     "Balanced": (
         BALANCED,
@@ -271,7 +276,18 @@ def _render_route_results() -> None:
         current_time,
     )
     tradeoff = compare_route_tradeoff(routes)
-    st.caption(tradeoff["explanation"])
+    if preference_result["recommended_route_id"] is not None:
+        recommended_route = route_by_id[
+            preference_result["recommended_route_id"]
+        ]
+        st.success(
+            f"**Suggested route: {recommended_route.name}** — "
+            f"{preference_result['reason']}."
+        )
+    else:
+        st.info("No single route is best for every priority. Compare the shortlist.")
+    st.caption(preference_result["explanation"])
+    st.caption(f"Trade-off: {tradeoff['explanation']}")
     highlighted_route_ids = (
         set(preference_result["shortlist_route_ids"])
         if preference_result["recommended_route_id"] is None
@@ -306,16 +322,18 @@ def _render_route_results() -> None:
                 "Journey",
                 f"{_format_value(result['estimated_time'])} min",
             )
+            st.caption(
+                f"Possible arrival: "
+                f"{_format_value(result['minimum_time'])}–"
+                f"{_format_value(result['maximum_time'])} min"
+            )
             st.write(
                 f"**Distance:** "
                 f"{_format_value(route_distances_km[route.route_id])} km"
             )
             st.write(
-                f"**Uncertainty:** ±{_format_value(route.uncertainty)} min"
-            )
-            st.write(
-                f"**Range:** {_format_value(result['minimum_time'])}–"
-                f"{_format_value(result['maximum_time'])} min"
+                f"**Estimate uncertainty:** "
+                f"±{_format_value(route.uncertainty)} min"
             )
             data_age = result["data_age_minutes"]
             if data_age is None:
@@ -326,8 +344,13 @@ def _render_route_results() -> None:
                     f"({_format_value(data_age)} min old)"
                 )
             if st.button(
-                "Select route",
+                "Use this route",
                 key=f"select_route_{route.route_id}",
+                type=(
+                    "primary"
+                    if route.route_id in highlighted_route_ids
+                    else "secondary"
+                ),
             ):
                 st.session_state["selected_route_id"] = route.route_id
 
