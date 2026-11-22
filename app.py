@@ -323,7 +323,7 @@ def _render_route_results() -> None:
                 f"{_format_value(result['estimated_time'])} min",
             )
             st.caption(
-                f"Possible arrival: "
+                f"Possible journey time: "
                 f"{_format_value(result['minimum_time'])}–"
                 f"{_format_value(result['maximum_time'])} min"
             )
