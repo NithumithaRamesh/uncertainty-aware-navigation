@@ -10,6 +10,24 @@ Conventional navigation systems present estimated journey times and route recomm
 
 Users can compare alternative routes, explore different journey preferences and make their own informed route selections.
 
+## Project Status
+
+| Part | Status | Where |
+|---|---|---|
+| City search with UK-only matches and a confirmation step for ambiguous names | Implemented | `services/geocoding.py`, `app.py` |
+| Live alternative routes (duration, distance) | Implemented — OSRM public demo server | `services/routing.py` |
+| Freshness classification (Recent ≤10 min, Moderately old ≤30, Outdated >30, Unavailable) | Implemented; thresholds are provisional assumptions | `logic/freshness.py` |
+| Uncertainty range (estimate ± uncertainty) | Implemented calculation | `logic/uncertainty.py` |
+| Priority-based suggestions: Fastest, Most predictable, Most recent traffic, Balanced (non-dominated shortlist) | Implemented | `logic/preference.py`, `logic/tradeoff.py` |
+| Explicit route selection, "View details" disclosure | Implemented | `app.py` |
+| Traffic-data timestamps | **Simulated**: fixed age per route ID (A 5, B 45, C 18, D 8, E 35 min) | `simulation/freshness_simulator.py` |
+| Journey-time uncertainty | **Simulated**: fixed ± minutes per route ID (A 8, B 2, C 3, D 5, E 4), else a hash of the route ID, within 2–10 min | `simulation/uncertainty_simulator.py` |
+| Live traffic data, learned uncertainty model | Planned | — |
+| Remembering the user's priority, in-drive voice reroute prompt, "estimate only" baseline view with study logging | Planned | — |
+| User study of trust and route choice | Not started | — |
+
+The simulated values are deterministic so every run shows the same trade-off (Route A: fast but uncertain; Route B: predictable but older data). They are labelled in the interface and are not evidence about real traffic.
+
 ## Features
 
 - **Route discovery:** Enter an origin and destination to retrieve alternative routes.
@@ -54,6 +72,11 @@ The system does not combine uncertainty and freshness into an unsupported reliab
 | Streamlit | Interactive user interface |
 | OSRM | Route retrieval and journey estimates |
 | Pytest | Automated testing |
+| Nominatim (OpenStreetMap) | Place search; UK only, up to 5 matches, 1 request per second, with a User-Agent header |
+
+No API key is needed. Both services are public; an internet connection is required to run the app, but not to run the tests (network calls are mocked).
+
+Undecided: where real traffic timestamps and uncertainty would come from (for example a commercial traffic API or historical journey-time data).
 
 ## Project Structure
 
@@ -83,6 +106,24 @@ uncertainty-aware-navigation/
 - `data/` – Project data and supporting resources.
 - `scripts/` – Supporting development scripts.
 - `tests/` – Automated tests.
+
+## Development Record
+
+| Stage | Commits | What changed and why | How I checked it |
+|---|---|---|---|
+| 1. Freshness model | [03b1718](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/03b1718), [2bf0b1c](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/2bf0b1c) | Classified data age into four labels; a missing timestamp became "Unavailable" so one incomplete route does not block the others | `tests/test_freshness.py`: boundary cases at 10 and 30 min, missing, naive vs timezone-aware times |
+| 2. Route model and comparison | [a9239cf](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/a9239cf), [f5f9c33](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/f5f9c33), [d7a7db2](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/d7a7db2) | Route validation, uncertainty range, fastest-route comparison that reports uncertainty and freshness separately (no combined score); rejected duplicate route IDs | `test_route.py`, `test_recommendation.py`, `test_uncertainty.py` |
+| 3. First interface | [02772db](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/02772db), [940cb03](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/940cb03) | Streamlit page on five hard-coded sample routes; always recommended the fastest route | [what you observed when using it] |
+| 4. Architecture change | [19a5491](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/19a5491) | Sample routes gave trade-offs that were too tidy, and a fastest-only suggestion ignored the reliability it displayed. Added Nominatim + OSRM; separated `simulation/` from `logic/` via an adapter so simulated values cannot pass as retrieved; added priorities and the Balanced shortlist | Mocked tests for routing, geocoding, adapter, simulators, preferences; `scripts/*_smoke.py` against the live services; [manual runs, e.g. which city pairs] |
+| 5. Interaction fixes | [6c54c80](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/6c54c80) | Added "Most recent traffic"; suggestion banner with its reason; range shown beside the estimate; "Use this route" buttons with the suggested route highlighted; uncertainty made independent of route duration | `test_uncertainty_simulator.py` (independence from duration); [manual check] |
+| 6. Documentation | [0618999](https://github.com/NithumithaRamesh/uncertainty-aware-navigation/commit/0618999) and later | README, status and this record | — |
+
+## Using AI
+
+- **GitHub Copilot (VS Code/Copilot CLI)** helped develop the model foundation and implementation based on the design and requirements I provided. This included drafting and refining Python logic, application code and README sections. I reviewed the code against the project requirements, ran the tests, checked status labels and commit hashes, and corrected or removed unsupported suggestions. 
+- **Claude (claude.ai)** helped prepare an initial structure for the A2 report, system diagram and interaction storyboards using the repository and lecture notes. I checked the resulting claims against the implementation and commit history, particularly the distinction between live routing and simulated freshness or uncertainty, and corrected wording before finalising it.
+
+AI-assisted text was used as a starting point, not as evidence or a final authority. I am responsible for the design choices, implementation, report claims and references submitted.
 
 ## Getting Started
 
