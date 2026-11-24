@@ -177,3 +177,6 @@ The application will be available at the local URL provided by Streamlit, usuall
 ```bash
 pytest
 ```
+### Verification
+
+![alt text](image.png)
